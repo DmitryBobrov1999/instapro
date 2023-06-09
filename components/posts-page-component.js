@@ -1,23 +1,27 @@
 import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
 import { goToPage } from '../index.js';
-import { allPosts } from '../api.js';
+import { allPosts, removeLikes, addLikes } from '../api.js';
 
 const getListPostsEdit = (post, index) => {
 	return `<li class="post" data-index = '${index}'>
-      <div class="post-header" data-user-id="${post.id}">
-      <img src="${post.postImage}" class="post-header__user-image">
+      <div class="post-header" data-user-id="${post.userId}">
+      <img src="${post.image}" class="post-header__user-image">
       <p class="post-header__user-name">${post.name}</p>
       </div>
       <div class="post-image-container">
-      <img class="post-image" src="${post.image}">
+      <img class="post-image" src="${post.postImage}">
       </div>
       <div class="post-likes">
-      <button data-post-id="${post.dataId}" class="like-button">
-      <img src="./assets/images/like-active.svg">
+      <button data-post-id="${post.postId}" class="like-button ">
+      ${
+				post.isLiked
+					? `<img src="./assets/images/like-active.svg">`
+					: `<img src="./assets/images/like-not-active.svg"></img>`
+			}
       </button>
-      <p class="post-likes-text">
-      Нравится: <strong>2</strong>
+      <p  class="post-likes-text">
+      Нравится: <strong >${post.numberOfLikes}</strong>
       </p>
       </div>
       <p class="post-text">
@@ -31,8 +35,34 @@ const getListPostsEdit = (post, index) => {
 };
 
 
-export function renderPostsPageComponent() {
+//!нeдoдeлaнный код для лайков
+export const initEventListeners = () => {
+	const buttonsLike = document.querySelectorAll('.like-button');
+	for (const buttonLike of buttonsLike) {
+		const postId = buttonLike.dataset.postId;
+		buttonLike.addEventListener('click', event => {
+			event.stopPropagation();
 
+			if (postId) {
+				removeLikes({
+					postId: postId,
+					isLiked: false,
+				}).then(() => {
+          renderPostsPageComponent()
+				});
+			} else {
+				addLikes({
+					postId: postId,
+					isLiked: false,
+				}).then(() => {
+          renderPostsPageComponent()
+				});
+			}
+		});
+	}
+};
+
+export function renderPostsPageComponent() {
 	const appEl = document.getElementById('app');
 
 	// TODO: реализовать рендер постов из api
@@ -51,19 +81,16 @@ export function renderPostsPageComponent() {
 
 	appEl.innerHTML = appHtml;
 
-	
-
 	renderHeaderComponent({
-    element: document.querySelector('.header-container'),
-  });
+		element: document.querySelector('.header-container'),
+	});
 
-  for (let userEl of document.querySelectorAll('.post-header')) {
-    userEl.addEventListener('click', () => {
-      goToPage(USER_POSTS_PAGE, {
-        userId: userEl.dataset.userId,
-      });
-    });
-  }
+	for (let userEl of document.querySelectorAll('.post-header')) {
+		userEl.addEventListener('click', () => {
+			goToPage(USER_POSTS_PAGE, {
+				userId: userEl.dataset.userId,
+			});
+		});
+	}
+	initEventListeners();
 }
-
-

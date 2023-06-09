@@ -20,7 +20,7 @@ export let user = getUserFromLocalStorage();
 export let page = null;
 export let allPosts = [];
 
-const getToken = () => {
+export const getToken = () => {
 	const token = user ? `Bearer ${user.token}` : undefined;
 	return token;
 };
@@ -131,4 +131,3 @@ export const appEl = document.getElementById('app');
 };
 
 goToPage(POSTS_PAGE)
-renderPostsPageComponent();
