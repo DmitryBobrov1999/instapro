@@ -3,8 +3,8 @@ import { renderHeaderComponent } from './header-component.js';
 import { goToPage } from '../index.js';
 import { allPosts, removeLikes, addLikes } from '../api.js';
 
-export const getListPostsEdit = (post, index) => {
-	return `<li class="post" data-index = '${index}'>
+export const getListPostsEdit = (post) => {
+	return `<li class="post">
       <div class="post-header" data-user-id="${post.userId}">
       <img src="${post.image}" class="post-header__user-image">
       <p class="post-header__user-name">${post.name}</p>
@@ -13,7 +13,9 @@ export const getListPostsEdit = (post, index) => {
       <img class="post-image" src="${post.postImage}">
       </div>
       <div class="post-likes">
-      <button data-post-id="${post.postId}" class="like-button ">
+      <button  data-post-id="${
+		post.postId
+	}" class="like-button">
       ${
 				post.isLiked
 					? `<img src="./assets/images/like-active.svg">`
@@ -21,7 +23,7 @@ export const getListPostsEdit = (post, index) => {
 			}
       </button>
       <p  class="post-likes-text">
-      Нравится: <strong >${post.numberOfLikes}</strong>
+      Нравится: <strong >${post.likes}</strong>
       </p>
       </div>
       <p class="post-text">
@@ -41,19 +43,22 @@ export const initEventListeners = () => {
 		const postId = buttonLike.dataset.postId;
 		buttonLike.addEventListener('click', event => {
 			event.stopPropagation();
-
+			
 			if (postId) {
-				removeLikes({
-					postId: postId,
-					isLiked: false,
-				}).then(() => {
-					renderPostsPageComponent();
-				});
-			} else {
 				addLikes({
 					postId: postId,
 					isLiked: false,
 				}).then(() => {
+					
+
+					renderPostsPageComponent();
+				});
+			} else {
+				removeLikes({
+					postId: postId,
+					isLiked: false,
+				}).then(() => {
+					
 					renderPostsPageComponent();
 				});
 			}
@@ -61,15 +66,13 @@ export const initEventListeners = () => {
 	}
 };
 
-
-
 export function renderPostsPageComponent() {
 	const appEl = document.getElementById('app');
 
 	// TODO: реализовать рендер постов из api
 
 	const postsHTML = allPosts
-		.map((post, index) => getListPostsEdit(post, index))
+		.map((post) => getListPostsEdit(post))
 		.join('');
 
 	const appHtml = `
@@ -90,7 +93,6 @@ export function renderPostsPageComponent() {
 		userEl.addEventListener('click', () => {
 			window.localStorage.setItem('userId', userEl.dataset.userId);
 			goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
-			 
 		});
 	}
 	initEventListeners();

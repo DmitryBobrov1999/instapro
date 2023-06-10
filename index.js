@@ -148,8 +148,8 @@ const renderApp = () => {
 </div>
 
 <div class="posts-user-header">
-                    <img src="https://storage.yandexcloud.net/skypro-webdev-homework-bucket/1682539071684-Chrysanthemum.jpg" class="posts-user-header__user-image">
-                    <p class="posts-user-header__user-name">djon198360</p>
+       <img src="https://storage.yandexcloud.net/skypro-webdev-homework-bucket/1682539071684-Chrysanthemum.jpg" class="posts-user-header__user-image">
+        <p class="posts-user-header__user-name">djon198360</p>
                 </div>`;
 
 		renderHeaderComponent({

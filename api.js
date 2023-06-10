@@ -3,6 +3,9 @@ import {
 } from './components/posts-page-component.js';
 import { getToken } from './index.js';
 
+import { formatDistance } from './node_modules/date-fns';
+
+import {ru} from 'date-fns/locale'
 
 const personalKey = 'dmitry-bobrov';
 const baseHost = 'https://webdev-hw-api.vercel.app';
@@ -10,7 +13,7 @@ const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
 let allPosts = [];
 
-import { formatDistanceToNow } from './node_modules/date-fns';
+
 
 export function getPosts() {
 	return fetch(postsHost, {
@@ -28,13 +31,14 @@ export function getPosts() {
 				const currentDate = new Date();
 				return {
 					name: post.user.name,
-					date: formatDistanceToNow(createDate, currentDate),
+					date:
+						formatDistance(createDate, currentDate, { locale: ru }) + ' назад',
 					userId: post.user.id,
 					image: post.user.imageUrl,
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					numberOfLikes: 0,
+					likes: '',
 					isLiked: false,
 				};
 			});
@@ -64,14 +68,14 @@ export function getUserPost() {
 
 				return {
 					name: post.user.name,
-					date: formatDistanceToNow(createDate, currentDate),
+					date: formatDistance(createDate, currentDate, { locale: ru }),
 					userId: post.user.id,
 					image: post.user.imageUrl,
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					numberOfLikes: 0,
-					isLiked: false,
+					likes: '',
+					isLiked: null,
 				};
 			});
 			renderPostsPageComponent();
@@ -157,9 +161,9 @@ export function addLikes({ postId, isLiked }) {
 			Authorization: getToken(),
 		},
 		method: 'POST',
-		body: JSON.stringify({
+		body: {
 			isLiked,
-		}),
+		},
 	})
 		.then(response => {
 			if (response.status === 401) {
@@ -178,9 +182,9 @@ export function removeLikes({ postId, isLiked }) {
 			Authorization: getToken(),
 		},
 		method: 'POST',
-		body: JSON.stringify({
+		body: {
 			isLiked,
-		}),
+		},
 	})
 		.then(response => {
 			if (response.status === 401) {
