@@ -1,5 +1,5 @@
 export function saveUserToLocalStorage(user) {
-  window.localStorage.setItem("user", JSON.stringify(user));
+  window.localStorage.setItem("user", JSON.stringify(user));  
 }
 
 export function getUserFromLocalStorage(user) {

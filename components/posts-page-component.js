@@ -3,7 +3,7 @@ import { renderHeaderComponent } from './header-component.js';
 import { goToPage } from '../index.js';
 import { allPosts, removeLikes, addLikes } from '../api.js';
 
-const getListPostsEdit = (post, index) => {
+export const getListPostsEdit = (post, index) => {
 	return `<li class="post" data-index = '${index}'>
       <div class="post-header" data-user-id="${post.userId}">
       <img src="${post.image}" class="post-header__user-image">
@@ -34,7 +34,6 @@ const getListPostsEdit = (post, index) => {
       </li>`;
 };
 
-
 //!нeдoдeлaнный код для лайков
 export const initEventListeners = () => {
 	const buttonsLike = document.querySelectorAll('.like-button');
@@ -48,19 +47,21 @@ export const initEventListeners = () => {
 					postId: postId,
 					isLiked: false,
 				}).then(() => {
-          renderPostsPageComponent()
+					renderPostsPageComponent();
 				});
 			} else {
 				addLikes({
 					postId: postId,
 					isLiked: false,
 				}).then(() => {
-          renderPostsPageComponent()
+					renderPostsPageComponent();
 				});
 			}
 		});
 	}
 };
+
+
 
 export function renderPostsPageComponent() {
 	const appEl = document.getElementById('app');
@@ -87,9 +88,9 @@ export function renderPostsPageComponent() {
 
 	for (let userEl of document.querySelectorAll('.post-header')) {
 		userEl.addEventListener('click', () => {
-			goToPage(USER_POSTS_PAGE, {
-				userId: userEl.dataset.userId,
-			});
+			window.localStorage.setItem('userId', userEl.dataset.userId);
+			goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
+			 
 		});
 	}
 	initEventListeners();

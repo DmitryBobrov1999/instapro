@@ -36,6 +36,8 @@ export function renderHeaderComponent({ element }) {
 		goToPage(POSTS_PAGE);
 	});
 
+	
+
 	element.querySelector('.logout-button')?.addEventListener('click', logout);
 
 	return element;

@@ -1,6 +1,8 @@
-import { getPosts } from './api.js'
+import { getPosts, getUserPost } from './api.js';
 import { renderAddPostPageComponent } from './components/add-post-page-component.js';
 import { renderAuthPageComponent } from './components/auth-page-component.js';
+import { renderHeaderComponent } from './components/header-component.js';
+
 import {
 	ADD_POSTS_PAGE,
 	AUTH_PAGE,
@@ -68,10 +70,20 @@ export const goToPage = (newPage, data) => {
 
 		if (newPage === USER_POSTS_PAGE) {
 			// TODO: реализовать получение постов юзера из API
-			console.log('Открываю страницу пользователя: ', data.userId);
-			page = USER_POSTS_PAGE;
+			// console.log('Открываю страницу пользователя: ', data.userId);
 			allPosts = [];
-			return renderApp();
+			page = LOADING_PAGE;
+			renderApp();
+			return getUserPost()
+				.then(newPosts => {
+					page = USER_POSTS_PAGE;
+					allPosts = newPosts;
+					renderApp();
+				})
+				.catch(error => {
+					console.error(error);
+					goToPage(USER_POSTS_PAGE);
+				});
 		}
 
 		page = newPage;
@@ -83,8 +95,7 @@ export const goToPage = (newPage, data) => {
 	throw new Error('страницы не существует');
 };
 export const appEl = document.getElementById('app');
- const renderApp = () => {
-	
+const renderApp = () => {
 	if (page === LOADING_PAGE) {
 		return renderLoadingPageComponent({
 			appEl,
@@ -125,9 +136,28 @@ export const appEl = document.getElementById('app');
 
 	if (page === USER_POSTS_PAGE) {
 		// TODO: реализовать страницу фотографию пользователя
-		appEl.innerHTML = 'Здесь будет страница фотографий пользователя';
+		appEl.innerHTML = ` <div class="page-container">
+      <div class="header-container">
+  <div class="page-header">
+      <h1 class="logo">instapro</h1>
+      <button class="header-button add-or-login-button">
+      <div title="Добавить пост" class="add-post-sign"></div>
+      </button>
+      <button title="Дмитрий Бобров" class="header-button logout-button">Выйти</button>       
+  </div>
+</div>
+
+<div class="posts-user-header">
+                    <img src="https://storage.yandexcloud.net/skypro-webdev-homework-bucket/1682539071684-Chrysanthemum.jpg" class="posts-user-header__user-image">
+                    <p class="posts-user-header__user-name">djon198360</p>
+                </div>`;
+
+		renderHeaderComponent({
+			element: document.querySelector('.header-container'),
+		});
+		renderPostsPageComponent();
 		return;
 	}
 };
 
-goToPage(POSTS_PAGE)
+goToPage(POSTS_PAGE);

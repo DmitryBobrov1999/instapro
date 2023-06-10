@@ -1,5 +1,8 @@
-import { renderPostsPageComponent } from './components/posts-page-component.js';
+import {
+	renderPostsPageComponent
+} from './components/posts-page-component.js';
 import { getToken } from './index.js';
+
 
 const personalKey = 'dmitry-bobrov';
 const baseHost = 'https://webdev-hw-api.vercel.app';
@@ -12,10 +15,42 @@ import { formatDistanceToNow } from './node_modules/date-fns';
 export function getPosts() {
 	return fetch(postsHost, {
 		method: 'GET',
-		headers: {
-			Authorization: getToken(),
-		},
 	})
+		.then(response => {
+			if (response.status === 401) {
+				throw new Error('Нет авторизации');
+			}
+			return response.json();
+		})
+		.then(responseData => {
+			allPosts = responseData.posts.map(post => {
+				const createDate = new Date(post.createdAt);
+				const currentDate = new Date();
+				return {
+					name: post.user.name,
+					date: formatDistanceToNow(createDate, currentDate),
+					userId: post.user.id,
+					image: post.user.imageUrl,
+					postImage: post.imageUrl,
+					postId: post.id,
+					description: post.description,
+					numberOfLikes: 0,
+					isLiked: false,
+				};
+			});
+
+			renderPostsPageComponent();
+		});
+}
+
+export function getUserPost() {
+	const id = window.localStorage.getItem('userId');
+	return fetch(
+		`https://wedev-api.sky.pro/api/v1/${personalKey}/instapro/user-posts/${id}`,
+		{
+			method: 'GET',
+		}
+	)
 		.then(response => {
 			if (response.status === 401) {
 				throw new Error('Нет авторизации');
@@ -39,8 +74,10 @@ export function getPosts() {
 					isLiked: false,
 				};
 			});
-
 			renderPostsPageComponent();
+		})
+		.catch(error => {
+			console.log(error);
 		});
 }
 
