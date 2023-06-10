@@ -39,7 +39,7 @@ export function getPosts() {
 					postId: post.id,
 					description: post.description,
 					likes: '',
-					isLiked: false,
+					isLiked: post.isLiked,
 				};
 			});
 
@@ -74,7 +74,7 @@ export function getUserPost() {
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					likes: '',
+					likes: post.likes,
 					isLiked: null,
 				};
 			});
@@ -155,7 +155,7 @@ export function uploadImage({ file }) {
 	});
 }
 
-export function addLikes({ postId, isLiked }) {
+export function addLikes({ postId, isLiked}) {
 	return fetch(`${baseHost}/api/v1/${personalKey}/instapro/${postId}/like`, {
 		headers: {
 			Authorization: getToken(),

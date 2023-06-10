@@ -3,7 +3,7 @@ import { renderHeaderComponent } from './header-component.js';
 import { goToPage } from '../index.js';
 import { allPosts, removeLikes, addLikes } from '../api.js';
 
-export const getListPostsEdit = (post) => {
+export const getListPostsEdit = (post, index) => {
 	return `<li class="post">
       <div class="post-header" data-user-id="${post.userId}">
       <img src="${post.image}" class="post-header__user-image">
@@ -13,7 +13,7 @@ export const getListPostsEdit = (post) => {
       <img class="post-image" src="${post.postImage}">
       </div>
       <div class="post-likes">
-      <button  data-post-id="${
+      <button data-index = '${index}' data-post-id="${
 		post.postId
 	}" class="like-button">
       ${
@@ -41,38 +41,46 @@ export const initEventListeners = () => {
 	const buttonsLike = document.querySelectorAll('.like-button');
 	for (const buttonLike of buttonsLike) {
 		const postId = buttonLike.dataset.postId;
+		const index = buttonLike.dataset.index;
 		buttonLike.addEventListener('click', event => {
 			event.stopPropagation();
-			
-			if (postId) {
+
+			if (allPosts[index].isLiked === false) {
 				addLikes({
 					postId: postId,
-					isLiked: false,
+					isLiked: true,
 				}).then(() => {
-					
-
-					renderPostsPageComponent();
-				});
-			} else {
-				removeLikes({
-					postId: postId,
-					isLiked: false,
-				}).then(() => {
-					
+					allPosts[index].isLiked = !allPosts[index].isLiked;
+					localStorage.setItem(postId, true);
+					console.log(allPosts[index].isLiked);
 					renderPostsPageComponent();
 				});
 			}
+			else {
+				removeLikes({
+					postId: postId,
+					isLiked: false
+				}).then(() => {
+					allPosts[index].isLiked = !allPosts[index].isLiked;
+					localStorage.setItem(postId, false);
+					console.log(allPosts[index].isLiked);
+					renderPostsPageComponent();
+				});
+			}
+			
 		});
 	}
+	
 };
 
 export function renderPostsPageComponent() {
+
 	const appEl = document.getElementById('app');
 
 	// TODO: реализовать рендер постов из api
 
 	const postsHTML = allPosts
-		.map((post) => getListPostsEdit(post))
+		.map((post, index) => getListPostsEdit(post, index))
 		.join('');
 
 	const appHtml = `
