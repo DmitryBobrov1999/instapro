@@ -10,7 +10,10 @@ import {
 	POSTS_PAGE,
 	USER_POSTS_PAGE,
 } from './routes.js';
-import { renderPostsPageComponent } from './components/posts-page-component.js';
+import {
+	renderPostsPageComponent,
+	likesSwitcher,
+} from './components/posts-page-component.js';
 import { renderLoadingPageComponent } from './components/loading-page-component.js';
 import {
 	getUserFromLocalStorage,
@@ -55,7 +58,7 @@ export const goToPage = (newPage, data) => {
 		if (newPage === POSTS_PAGE) {
 			page = LOADING_PAGE;
 			renderApp();
-
+			
 			return getPosts({ token: getToken() })
 				.then(newPosts => {
 					page = POSTS_PAGE;
@@ -73,11 +76,14 @@ export const goToPage = (newPage, data) => {
 			// console.log('Открываю страницу пользователя: ', data.userId);
 			allPosts = [];
 			page = LOADING_PAGE;
+
 			renderApp();
+
 			return getUserPost()
 				.then(newPosts => {
 					page = USER_POSTS_PAGE;
 					allPosts = newPosts;
+
 					renderApp();
 				})
 				.catch(error => {
@@ -161,3 +167,4 @@ const renderApp = () => {
 };
 
 goToPage(POSTS_PAGE);
+// localStorage.clear()

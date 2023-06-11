@@ -1,11 +1,11 @@
-import {
-	renderPostsPageComponent
-} from './components/posts-page-component.js';
+import { renderPostsPageComponent } from './components/posts-page-component.js';
 import { getToken } from './index.js';
 
 import { formatDistance } from './node_modules/date-fns';
 
-import {ru} from 'date-fns/locale'
+var _ = require('lodash');
+
+import { ru } from 'date-fns/locale';
 
 const personalKey = 'dmitry-bobrov';
 const baseHost = 'https://webdev-hw-api.vercel.app';
@@ -13,11 +13,12 @@ const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
 let allPosts = [];
 
-
-
 export function getPosts() {
 	return fetch(postsHost, {
 		method: 'GET',
+		headers: {
+			Authorization: getToken(),
+		},
 	})
 		.then(response => {
 			if (response.status === 401) {
@@ -29,6 +30,20 @@ export function getPosts() {
 			allPosts = responseData.posts.map(post => {
 				const createDate = new Date(post.createdAt);
 				const currentDate = new Date();
+				function renderLikes() {
+					const firstObj = post.likes[0];
+					const realObj = _.get(firstObj, 'name');
+					if (post.likes.length > 1) {
+						return realObj + ` и еще ${post.likes.length - 1}`;
+					}
+					if (post.likes.length === 0) {
+						return 0;
+					}
+					if (post.likes.length === 1) {
+						return realObj;
+					}
+				}
+
 				return {
 					name: post.user.name,
 					date:
@@ -38,7 +53,7 @@ export function getPosts() {
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					likes: '',
+					likes: renderLikes(),
 					isLiked: post.isLiked,
 				};
 			});
@@ -53,6 +68,9 @@ export function getUserPost() {
 		`https://wedev-api.sky.pro/api/v1/${personalKey}/instapro/user-posts/${id}`,
 		{
 			method: 'GET',
+			headers: {
+				Authorization: getToken(),
+			},
 		}
 	)
 		.then(response => {
@@ -65,17 +83,31 @@ export function getUserPost() {
 			allPosts = responseData.posts.map(post => {
 				const createDate = new Date(post.createdAt);
 				const currentDate = new Date();
+				function renderLikes() {
+					const firstObj = post.likes[0];
+					const realObj = _.get(firstObj, 'name');
+					if (post.likes.length > 1) {
+						return realObj + ` и еще ${post.likes.length - 1}`;
+					}
+					if (post.likes.length === 0) {
+						return 0;
+					}
+					if (post.likes.length === 1) {
+						return realObj;
+					}
+				}
 
 				return {
 					name: post.user.name,
-					date: formatDistance(createDate, currentDate, { locale: ru }),
+					date:
+						formatDistance(createDate, currentDate, { locale: ru }) + ' назад',
 					userId: post.user.id,
 					image: post.user.imageUrl,
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					likes: post.likes,
-					isLiked: null,
+					likes: renderLikes(),
+					isLiked: post.isLiked,
 				};
 			});
 			renderPostsPageComponent();
@@ -155,15 +187,12 @@ export function uploadImage({ file }) {
 	});
 }
 
-export function addLikes({ postId, isLiked}) {
+export function addLikes({ postId }) {
 	return fetch(`${baseHost}/api/v1/${personalKey}/instapro/${postId}/like`, {
 		headers: {
 			Authorization: getToken(),
 		},
 		method: 'POST',
-		body: {
-			isLiked,
-		},
 	})
 		.then(response => {
 			if (response.status === 401) {
@@ -176,15 +205,12 @@ export function addLikes({ postId, isLiked}) {
 		});
 }
 
-export function removeLikes({ postId, isLiked }) {
+export function removeLikes({ postId }) {
 	return fetch(`${baseHost}/api/v1/${personalKey}/instapro/${postId}/dislike`, {
 		headers: {
 			Authorization: getToken(),
 		},
 		method: 'POST',
-		body: {
-			isLiked,
-		},
 	})
 		.then(response => {
 			if (response.status === 401) {

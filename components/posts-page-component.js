@@ -36,45 +36,35 @@ export const getListPostsEdit = (post, index) => {
       </li>`;
 };
 
-//!нeдoдeлaнный код для лайков
-export const initEventListeners = () => {
+export const likesSwitcher = () => {
 	const buttonsLike = document.querySelectorAll('.like-button');
 	for (const buttonLike of buttonsLike) {
 		const postId = buttonLike.dataset.postId;
 		const index = buttonLike.dataset.index;
 		buttonLike.addEventListener('click', event => {
 			event.stopPropagation();
-
 			if (allPosts[index].isLiked === false) {
 				addLikes({
 					postId: postId,
 					isLiked: true,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					localStorage.setItem(postId, true);
-					console.log(allPosts[index].isLiked);
 					renderPostsPageComponent();
 				});
-			}
-			else {
+			} else {
 				removeLikes({
 					postId: postId,
-					isLiked: false
+					isLiked: false,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					localStorage.setItem(postId, false);
-					console.log(allPosts[index].isLiked);
 					renderPostsPageComponent();
 				});
 			}
-			
 		});
 	}
-	
 };
 
 export function renderPostsPageComponent() {
-
 	const appEl = document.getElementById('app');
 
 	// TODO: реализовать рендер постов из api
@@ -103,5 +93,5 @@ export function renderPostsPageComponent() {
 			goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
 		});
 	}
-	initEventListeners();
+	likesSwitcher();
 }
