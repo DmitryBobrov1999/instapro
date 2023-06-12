@@ -1,5 +1,5 @@
 import { renderPostsPageComponent } from './components/posts-page-component.js';
-import { getToken } from './index.js';
+import { getToken, renderApp } from './index.js';
 
 import { formatDistance } from './node_modules/date-fns';
 
@@ -57,8 +57,8 @@ export function getPosts() {
 					isLiked: post.isLiked,
 				};
 			});
-
-			renderPostsPageComponent();
+			renderApp();
+			// renderPostsPageComponent();
 		});
 }
 
@@ -110,7 +110,7 @@ export function getUserPost() {
 					isLiked: post.isLiked,
 				};
 			});
-			renderPostsPageComponent();
+			getUserPost();
 		})
 		.catch(error => {
 			console.log(error);
@@ -200,6 +200,7 @@ export function addLikes({ postId }) {
 			}
 			return response.json();
 		})
+
 		.catch(error => {
 			console.log(error);
 		});

@@ -58,7 +58,7 @@ export const goToPage = (newPage, data) => {
 		if (newPage === POSTS_PAGE) {
 			page = LOADING_PAGE;
 			renderApp();
-			
+
 			return getPosts({ token: getToken() })
 				.then(newPosts => {
 					page = POSTS_PAGE;
@@ -101,7 +101,7 @@ export const goToPage = (newPage, data) => {
 	throw new Error('страницы не существует');
 };
 export const appEl = document.getElementById('app');
-const renderApp = () => {
+export const renderApp = () => {
 	if (page === LOADING_PAGE) {
 		return renderLoadingPageComponent({
 			appEl,
@@ -156,15 +156,18 @@ const renderApp = () => {
 <div class="posts-user-header">
        <img src="https://storage.yandexcloud.net/skypro-webdev-homework-bucket/1682539071684-Chrysanthemum.jpg" class="posts-user-header__user-image">
         <p class="posts-user-header__user-name">djon198360</p>
-                </div>`;
+                </div>
+								`;
 
 		renderHeaderComponent({
 			element: document.querySelector('.header-container'),
 		});
+
 		renderPostsPageComponent();
 		return;
 	}
 };
 
 goToPage(POSTS_PAGE);
+
 // localStorage.clear()

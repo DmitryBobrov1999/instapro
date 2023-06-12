@@ -1,7 +1,7 @@
 import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
 import { goToPage } from '../index.js';
-import { allPosts, removeLikes, addLikes } from '../api.js';
+import { allPosts, removeLikes, addLikes, getPosts } from '../api.js';
 
 export const getListPostsEdit = (post, index) => {
 	return `<li class="post">
@@ -49,7 +49,7 @@ export const likesSwitcher = () => {
 					isLiked: true,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					renderPostsPageComponent();
+					getPosts();
 				});
 			} else {
 				removeLikes({
@@ -57,7 +57,7 @@ export const likesSwitcher = () => {
 					isLiked: false,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					renderPostsPageComponent();
+					getPosts();
 				});
 			}
 		});
@@ -93,5 +93,6 @@ export function renderPostsPageComponent() {
 			goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
 		});
 	}
+
 	likesSwitcher();
 }
