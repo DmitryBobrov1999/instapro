@@ -1,4 +1,4 @@
-import { renderPostsPageComponent } from './components/posts-page-component.js';
+import { likesSwitcher, renderPostsPageComponent } from './components/posts-page-component.js';
 import { getToken, renderApp } from './index.js';
 
 import { formatDistance } from './node_modules/date-fns';
@@ -58,7 +58,6 @@ export function getPosts() {
 				};
 			});
 			renderApp();
-			// renderPostsPageComponent();
 		});
 }
 

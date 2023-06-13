@@ -20,6 +20,7 @@ import {
 	removeUserFromLocalStorage,
 	saveUserToLocalStorage,
 } from './helpers.js';
+import { get } from 'lodash';
 
 export let user = getUserFromLocalStorage();
 export let page = null;
@@ -83,7 +84,6 @@ export const goToPage = (newPage, data) => {
 				.then(newPosts => {
 					page = USER_POSTS_PAGE;
 					allPosts = newPosts;
-
 					renderApp();
 				})
 				.catch(error => {
@@ -91,10 +91,8 @@ export const goToPage = (newPage, data) => {
 					goToPage(USER_POSTS_PAGE);
 				});
 		}
-
 		page = newPage;
 		renderApp();
-
 		return;
 	}
 
@@ -138,6 +136,7 @@ export const renderApp = () => {
 		return renderPostsPageComponent({
 			appEl,
 		});
+		
 	}
 
 	if (page === USER_POSTS_PAGE) {

@@ -1,6 +1,6 @@
 import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
-import { goToPage } from '../index.js';
+import { goToPage, renderApp } from '../index.js';
 import { allPosts, removeLikes, addLikes, getPosts } from '../api.js';
 
 export const getListPostsEdit = (post, index) => {
@@ -49,7 +49,7 @@ export const likesSwitcher = () => {
 					isLiked: true,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					getPosts();
+					renderApp();
 				});
 			} else {
 				removeLikes({
@@ -57,7 +57,7 @@ export const likesSwitcher = () => {
 					isLiked: false,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
-					getPosts();
+					renderApp();
 				});
 			}
 		});
