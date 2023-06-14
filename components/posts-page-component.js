@@ -2,11 +2,17 @@ import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
 import { goToPage, renderApp } from '../index.js';
 import { allPosts, removeLikes, addLikes } from '../api.js';
+import _ from 'lodash';
 
 export const getListPostsEdit = (post, index) => {
 	let firstObj = post.likes[0];
 
 	let realObj = _.get(firstObj, 'name', post.name);
+	let randomObj = _.get(
+		post.likes[_.random(0, post.likes.length - 1)],
+		'name',
+		post.name
+	);
 
 	return `<li class="post">
       <div class="post-header" data-user-id="${post.userId}">
@@ -32,7 +38,7 @@ export const getListPostsEdit = (post, index) => {
 					? 0
 					: post.likes.length === 1
 					? realObj
-					: realObj + ' и еще ' + (post.likes.length - 1)
+					: randomObj + ' и еще ' + (post.likes.length - 1)
 			}</strong>
       </p>
       </div>
