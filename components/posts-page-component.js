@@ -1,9 +1,13 @@
 import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
 import { goToPage, renderApp } from '../index.js';
-import { allPosts, removeLikes, addLikes, getPosts } from '../api.js';
+import { allPosts, removeLikes, addLikes } from '../api.js';
 
 export const getListPostsEdit = (post, index) => {
+	let firstObj = post.likes[0];
+
+	let realObj = _.get(firstObj, 'name', post.name);
+
 	return `<li class="post">
       <div class="post-header" data-user-id="${post.userId}">
       <img src="${post.image}" class="post-header__user-image">
@@ -23,7 +27,13 @@ export const getListPostsEdit = (post, index) => {
 			}
       </button>
       <p  class="post-likes-text">
-      Нравится: <strong >${post.likes}</strong>
+      Нравится: <strong >${
+				post.likes.length < 1
+					? 0
+					: post.likes.length === 1
+					? realObj
+					: realObj + ' и еще ' + (post.likes.length - 1)
+			}</strong>
       </p>
       </div>
       <p class="post-text">
@@ -41,6 +51,7 @@ export const likesSwitcher = () => {
 	for (const buttonLike of buttonsLike) {
 		const postId = buttonLike.dataset.postId;
 		const index = buttonLike.dataset.index;
+
 		buttonLike.addEventListener('click', event => {
 			event.stopPropagation();
 			if (allPosts[index].isLiked === false) {
@@ -49,6 +60,7 @@ export const likesSwitcher = () => {
 					isLiked: true,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
+					allPosts[index].likes.length = allPosts[index].likes.length + 1;
 					renderApp();
 				});
 			} else {
@@ -57,6 +69,7 @@ export const likesSwitcher = () => {
 					isLiked: false,
 				}).then(() => {
 					allPosts[index].isLiked = !allPosts[index].isLiked;
+					allPosts[index].likes.length = allPosts[index].likes.length - 1;
 					renderApp();
 				});
 			}

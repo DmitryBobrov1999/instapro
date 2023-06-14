@@ -1,4 +1,7 @@
-import { likesSwitcher, renderPostsPageComponent } from './components/posts-page-component.js';
+import {
+	likesSwitcher,
+	renderPostsPageComponent,
+} from './components/posts-page-component.js';
 import { getToken, renderApp } from './index.js';
 
 import { formatDistance } from './node_modules/date-fns';
@@ -30,19 +33,6 @@ export function getPosts() {
 			allPosts = responseData.posts.map(post => {
 				const createDate = new Date(post.createdAt);
 				const currentDate = new Date();
-				function renderLikes() {
-					const firstObj = post.likes[0];
-					const realObj = _.get(firstObj, 'name');
-					if (post.likes.length > 1) {
-						return realObj + ` и еще ${post.likes.length - 1}`;
-					}
-					if (post.likes.length === 0) {
-						return 0;
-					}
-					if (post.likes.length === 1) {
-						return realObj;
-					}
-				}
 
 				return {
 					name: post.user.name,
@@ -53,7 +43,7 @@ export function getPosts() {
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					likes: renderLikes(),
+					likes: post.likes,
 					isLiked: post.isLiked,
 				};
 			});
@@ -105,7 +95,7 @@ export function getUserPost() {
 					postImage: post.imageUrl,
 					postId: post.id,
 					description: post.description,
-					likes: renderLikes(),
+					likes: post.likes,
 					isLiked: post.isLiked,
 				};
 			});
