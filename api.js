@@ -72,19 +72,6 @@ export function getUserPost() {
 			allPosts = responseData.posts.map(post => {
 				const createDate = new Date(post.createdAt);
 				const currentDate = new Date();
-				function renderLikes() {
-					const firstObj = post.likes[0];
-					const realObj = _.get(firstObj, 'name');
-					if (post.likes.length > 1) {
-						return realObj + ` и еще ${post.likes.length - 1}`;
-					}
-					if (post.likes.length === 0) {
-						return 0;
-					}
-					if (post.likes.length === 1) {
-						return realObj;
-					}
-				}
 
 				return {
 					name: post.user.name,
@@ -99,7 +86,6 @@ export function getUserPost() {
 					isLiked: post.isLiked,
 				};
 			});
-			getUserPost();
 		})
 		.catch(error => {
 			console.log(error);
