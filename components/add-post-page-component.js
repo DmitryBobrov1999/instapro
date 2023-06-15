@@ -1,7 +1,7 @@
 import { uploadPost } from '../api.js';
+import { getToken } from '../index.js';
 import { renderHeaderComponent } from './header-component.js';
 import { renderUploadImageComponent } from './upload-image-component.js';
-
 
 export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
 	const render = () => {
@@ -47,8 +47,6 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
 
 		appEl.innerHTML = appHtml;
 
-		
-
 		renderHeaderComponent({
 			element: document.querySelector('.header-container'),
 		});
@@ -64,13 +62,18 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
 			});
 		}
 
-    document.getElementById('add-button').addEventListener('click', () => {
+		document.getElementById('add-button').addEventListener('click', () => {
 			const textAreaPost = appEl.querySelector('.textarea');
 			onAddPostClick({
 				description: textAreaPost.value,
 				imageUrl: imageUrl,
 			});
-      uploadPost()
+      
+			uploadPost({
+				description: textAreaPost.value,
+				imageUrl: imageUrl,
+				getToken: getToken,
+			});
 		});
 	};
 

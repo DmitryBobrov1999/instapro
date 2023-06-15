@@ -1,4 +1,14 @@
-import { renderPostsPageComponent } from './components/posts-page-component.js';
+import {
+	likesSwitcher,
+	renderPostsPageComponent,
+} from './components/posts-page-component.js';
+import { getToken, renderApp } from './index.js';
+
+import { formatDistance } from './node_modules/date-fns';
+
+var _ = require('lodash');
+
+import { ru } from 'date-fns/locale';
 
 const personalKey = 'dmitry-bobrov';
 const baseHost = 'https://webdev-hw-api.vercel.app';
@@ -6,46 +16,86 @@ const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
 let allPosts = [];
 
-import { formatDistanceToNow } from './node_modules/date-fns';
-
-export function getPosts({ token }) {
-  return fetch(postsHost, {
-    method: 'GET',
-    headers: {
-      Authorization: token,
-    },
-  })
-    .then(response => {
-      if (response.status === 401) {
-        throw new Error('Нет авторизации');
-      }
+export function getPosts() {
+	return fetch(postsHost, {
+		method: 'GET',
+		headers: {
+			Authorization: getToken(),
+		},
+	})
+		.then(response => {
+			if (response.status === 401) {
+				throw new Error('Нет авторизации');
+			}
 			return response.json();
-    })
-    .then(responseData => {
-      allPosts = responseData.posts.map(post => {
-        const createDate = new Date(post.createdAt);
-        const currentDate = new Date();
-        return {
-          name: post.user.name,
-          date: formatDistanceToNow(createDate, currentDate),
-          id: post.user.id,
-          image: post.user.imageUrl,
-          postImage: post.imageUrl,
-          dataId: post.id,
-          description: post.description,
-        };
-      });
-      renderPostsPageComponent();
-    });
+		})
+		.then(responseData => {
+			allPosts = responseData.posts.map(post => {
+				const createDate = new Date(post.createdAt);
+				const currentDate = new Date();
+
+				return {
+					name: post.user.name,
+					date:
+						formatDistance(createDate, currentDate, { locale: ru }) + ' назад',
+					userId: post.user.id,
+					image: post.user.imageUrl,
+					postImage: post.imageUrl,
+					postId: post.id,
+					description: post.description,
+					likes: post.likes,
+					isLiked: post.isLiked,
+				};
+			});
+			renderApp();
+		});
 }
 
+export function getUserPost() {
+	const id = window.localStorage.getItem('userId');
+	return fetch(
+		`https://wedev-api.sky.pro/api/v1/${personalKey}/instapro/user-posts/${id}`,
+		{
+			method: 'GET',
+			headers: {
+				Authorization: getToken(),
+			},
+		}
+	)
+		.then(response => {
+			if (response.status === 401) {
+				throw new Error('Нет авторизации');
+			}
+			return response.json();
+		})
+		.then(responseData => {
+			allPosts = responseData.posts.map(post => {
+				const createDate = new Date(post.createdAt);
+				const currentDate = new Date();
 
+				return {
+					name: post.user.name,
+					date:
+						formatDistance(createDate, currentDate, { locale: ru }) + ' назад',
+					userId: post.user.id,
+					image: post.user.imageUrl,
+					postImage: post.imageUrl,
+					postId: post.id,
+					description: post.description,
+					likes: post.likes,
+					isLiked: post.isLiked,
+				};
+			});
+		})
+		.catch(error => {
+			console.log(error);
+		});
+}
 
-export function uploadPost({ token, description, imageUrl }) {
-
+export function uploadPost({ description, imageUrl }) {
 	return fetch(postsHost, {
 		headers: {
-			Authorization: token,
+			Authorization: getToken(),
 		},
 		method: 'POST',
 		body: JSON.stringify({
@@ -68,50 +118,85 @@ export function uploadPost({ token, description, imageUrl }) {
 		});
 }
 
-
 export function registerUser({ login, password, name, imageUrl }) {
-  return fetch(baseHost + '/api/user', {
-    method: 'POST',
-    body: JSON.stringify({
-      login,
-      password,
-      name,
-      imageUrl,
-    }),
-  }).then(response => {
-    if (response.status === 400) {
-      throw new Error('Такой пользователь уже существует');
-    }
-    return response.json();
-  });
+	return fetch(baseHost + '/api/user', {
+		method: 'POST',
+		body: JSON.stringify({
+			login,
+			password,
+			name,
+			imageUrl,
+		}),
+	}).then(response => {
+		if (response.status === 400) {
+			throw new Error('Такой пользователь уже существует');
+		}
+		return response.json();
+	});
 }
 
 export function loginUser({ login, password }) {
-  return fetch(baseHost + '/api/user/login', {
-    method: 'POST',
-    body: JSON.stringify({
-      login,
-      password,
-    }),
-  }).then(response => {
-    if (response.status === 400) {
-      throw new Error('Неверный логин или пароль');
-    }
-    return response.json();
-  });
+	return fetch(baseHost + '/api/user/login', {
+		method: 'POST',
+		body: JSON.stringify({
+			login,
+			password,
+		}),
+	}).then(response => {
+		if (response.status === 400) {
+			throw new Error('Неверный логин или пароль');
+		}
+		return response.json();
+	});
 }
 
-// Загружает картинку в облако, возвращает url загруженной картинки
 export function uploadImage({ file }) {
-  const data = new FormData();
-  data.append('file', file);
+	const data = new FormData();
+	data.append('file', file);
 
-  return fetch(baseHost + '/api/upload/image', {
-    method: 'POST',
-    body: data,
-  }).then(response => {
-    return response.json();
-  });
+	return fetch(baseHost + '/api/upload/image', {
+		method: 'POST',
+		body: data,
+	}).then(response => {
+		return response.json();
+	});
+}
+
+export function addLikes({ postId }) {
+	return fetch(`${baseHost}/api/v1/${personalKey}/instapro/${postId}/like`, {
+		headers: {
+			Authorization: getToken(),
+		},
+		method: 'POST',
+	})
+		.then(response => {
+			if (response.status === 401) {
+				throw new Error('Нет авторизации');
+			}
+			return response.json();
+		})
+
+		.catch(error => {
+			console.log(error);
+		});
+}
+
+export function removeLikes({ postId }) {
+	return fetch(`${baseHost}/api/v1/${personalKey}/instapro/${postId}/dislike`, {
+		headers: {
+			Authorization: getToken(),
+		},
+		method: 'POST',
+	})
+		.then(response => {
+			if (response.status === 401) {
+				throw new Error('Нет авторизации');
+			}
+			return response.json();
+		})
+		.catch(error => {
+			console.log(error);
+		});
 }
 
 export { allPosts };

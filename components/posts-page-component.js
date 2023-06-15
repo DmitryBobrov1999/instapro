@@ -1,23 +1,45 @@
 import { USER_POSTS_PAGE } from '../routes.js';
 import { renderHeaderComponent } from './header-component.js';
-import { goToPage } from '../index.js';
-import { allPosts } from '../api.js';
+import { goToPage, renderApp } from '../index.js';
+import { allPosts, removeLikes, addLikes } from '../api.js';
+import _ from 'lodash';
 
-const getListPostsEdit = (post, index) => {
-	return `<li class="post" data-index = '${index}'>
-      <div class="post-header" data-user-id="${post.id}">
-      <img src="${post.postImage}" class="post-header__user-image">
+export const getListPostsEdit = (post, index) => {
+	let firstObj = post.likes[0];
+
+	let realObj = _.get(firstObj, 'name', post.name);
+	let randomObj = _.get(
+		post.likes[_.random(0, post.likes.length - 1)],
+		'name',
+		post.name
+	);
+
+	return `<li class="post">
+      <div class="post-header" data-user-id="${post.userId}">
+      <img src="${post.image}" class="post-header__user-image">
       <p class="post-header__user-name">${post.name}</p>
       </div>
       <div class="post-image-container">
-      <img class="post-image" src="${post.image}">
+      <img class="post-image" src="${post.postImage}">
       </div>
       <div class="post-likes">
-      <button data-post-id="${post.dataId}" class="like-button">
-      <img src="./assets/images/like-active.svg">
+      <button data-index = '${index}' data-post-id="${
+		post.postId
+	}" class="like-button">
+      ${
+				post.isLiked
+					? `<img src="./assets/images/like-active.svg">`
+					: `<img src="./assets/images/like-not-active.svg"></img>`
+			}
       </button>
-      <p class="post-likes-text">
-      Нравится: <strong>2</strong>
+      <p  class="post-likes-text">
+      Нравится: <strong >${
+				post.likes.length < 1
+					? 0
+					: post.likes.length === 1
+					? realObj
+					: randomObj + ' и еще ' + (post.likes.length - 1)
+			}</strong>
       </p>
       </div>
       <p class="post-text">
@@ -30,9 +52,38 @@ const getListPostsEdit = (post, index) => {
       </li>`;
 };
 
+export const likesSwitcher = () => {
+	const buttonsLike = document.querySelectorAll('.like-button');
+	for (const buttonLike of buttonsLike) {
+		const postId = buttonLike.dataset.postId;
+		const index = buttonLike.dataset.index;
+
+		buttonLike.addEventListener('click', event => {
+			event.stopPropagation();
+			if (allPosts[index].isLiked === false) {
+				addLikes({
+					postId: postId,
+					isLiked: true,
+				}).then(() => {
+					allPosts[index].isLiked = !allPosts[index].isLiked;
+					allPosts[index].likes.length = allPosts[index].likes.length + 1;
+					renderApp();
+				});
+			} else {
+				removeLikes({
+					postId: postId,
+					isLiked: false,
+				}).then(() => {
+					allPosts[index].isLiked = !allPosts[index].isLiked;
+					allPosts[index].likes.length = allPosts[index].likes.length - 1;
+					renderApp();
+				});
+			}
+		});
+	}
+};
 
 export function renderPostsPageComponent() {
-
 	const appEl = document.getElementById('app');
 
 	// TODO: реализовать рендер постов из api
@@ -51,19 +102,16 @@ export function renderPostsPageComponent() {
 
 	appEl.innerHTML = appHtml;
 
-	
-
 	renderHeaderComponent({
-    element: document.querySelector('.header-container'),
-  });
+		element: document.querySelector('.header-container'),
+	});
 
-  for (let userEl of document.querySelectorAll('.post-header')) {
-    userEl.addEventListener('click', () => {
-      goToPage(USER_POSTS_PAGE, {
-        userId: userEl.dataset.userId,
-      });
-    });
-  }
+	for (let userEl of document.querySelectorAll('.post-header')) {
+		userEl.addEventListener('click', () => {
+			window.localStorage.setItem('userId', userEl.dataset.userId);
+			goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
+		});
+	}
+
+	likesSwitcher();
 }
-
-
