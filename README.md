@@ -4,7 +4,7 @@ MVP аналога популярной соц. сети для обмена ф�
 
 ## Ссылка на приложение:
 
-https://dmitrybobrov1999.github.io/instapro
+https://dmitrybobrov1999.github.io/skypro_insta
 
 ____
 
